@@ -1,4 +1,5 @@
 import "dotenv/config";
+import { randomUUID } from "node:crypto";
 import bcrypt from "bcryptjs";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
@@ -108,6 +109,7 @@ async function main() {
     },
   });
   await sb.from("employer_profiles").insert({
+    id: randomUUID(),
     user_id: employerId,
     company_name: "Silk HR Labs",
     industry: "Technology",
@@ -178,6 +180,7 @@ async function main() {
     const { data: ep, error: epErr } = await sb
       .from("employee_profiles")
       .insert({
+        id: randomUUID(),
         user_id: uid,
         job_title: e.jobTitle,
         job_category: e.jobCategory,

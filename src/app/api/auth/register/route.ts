@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
@@ -88,6 +89,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Server error" }, { status: 500 });
       }
       const { error: pErr } = await sb.from("employee_profiles").insert({
+        id: randomUUID(),
         user_id: authId,
         skills: "[]",
         work_types: "[]",
@@ -122,6 +124,7 @@ export async function POST(req: Request) {
     const industry =
       b.industry && (INDUSTRIES as readonly string[]).includes(b.industry) ? b.industry : "Other";
     const { error: pErr } = await sb.from("employer_profiles").insert({
+      id: randomUUID(),
       user_id: authId,
       company_name: b.companyName!,
       industry,
