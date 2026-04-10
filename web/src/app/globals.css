@@ -1,0 +1,603 @@
+@import "tailwindcss";
+
+/* Kadrlar.uz design system — P-01 */
+@theme inline {
+  --color-k-page: var(--k-page);
+  --color-k-surface: var(--k-surface);
+  --color-k-surface-elevated: var(--k-surface-elevated);
+  --color-k-primary: #4b9eff;
+  --color-k-primary-light: rgb(75 158 255 / 0.1);
+  --color-k-primary-mid: rgb(75 158 255 / 0.3);
+  --color-k-card: var(--k-surface);
+  --color-k-text: var(--k-text);
+  --color-k-text-secondary: var(--k-text-secondary);
+  --color-k-text-muted: var(--k-text-muted);
+  --color-k-text-disabled: var(--k-text-disabled);
+  --color-k-border: var(--k-border);
+  --color-k-border-hover: rgb(75 158 255 / 0.3);
+  --color-k-border-active: rgb(75 158 255 / 0.5);
+  --color-k-nav-edge: var(--k-nav-edge);
+  --color-k-logo-muted: #a78bfa;
+  --gradient-k-primary: linear-gradient(135deg, #4b9eff, #7b6fff);
+  --gradient-k-text: linear-gradient(90deg, #4b9eff, #a78bfa);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --radius-k-card: 14px;
+  --radius-k-btn: 10px;
+  --radius-k-tag: 6px;
+  --radius-k-pill: 20px;
+  --radius-k-avatar-team: 10px;
+}
+
+:root,
+html[data-theme="dark"] {
+  --k-page: #0a0f1e;
+  --k-surface: #0d1426;
+  --k-surface-elevated: #111827;
+  --k-text: #ffffff;
+  --k-text-secondary: rgb(255 255 255 / 0.6);
+  --k-text-muted: rgb(255 255 255 / 0.3);
+  --k-text-disabled: rgb(255 255 255 / 0.15);
+  --k-border: rgb(255 255 255 / 0.07);
+  --k-nav-edge: rgb(255 255 255 / 0.06);
+  --k-input-bg: rgb(255 255 255 / 0.04);
+  --k-input-border: rgb(255 255 255 / 0.08);
+  --k-input-text: rgb(255 255 255 / 0.7);
+  --k-input-placeholder: rgb(255 255 255 / 0.25);
+}
+
+html[data-theme="light"] {
+  --k-page: #edf2f8;
+  --k-surface: #f5f8fc;
+  --k-surface-elevated: #e8eef6;
+  --k-text: #162033;
+  --k-text-secondary: rgb(22 32 51 / 0.78);
+  --k-text-muted: rgb(22 32 51 / 0.56);
+  --k-text-disabled: rgb(22 32 51 / 0.34);
+  --k-border: rgb(22 32 51 / 0.14);
+  --k-nav-edge: rgb(22 32 51 / 0.12);
+  --k-input-bg: #f3f7fd;
+  --k-input-border: rgb(22 32 51 / 0.16);
+  --k-input-text: rgb(22 32 51 / 0.9);
+  --k-input-placeholder: rgb(22 32 51 / 0.5);
+}
+
+@media (prefers-color-scheme: light) {
+  html[data-theme="system"] {
+    --k-page: #edf2f8;
+    --k-surface: #f5f8fc;
+    --k-surface-elevated: #e8eef6;
+    --k-text: #162033;
+    --k-text-secondary: rgb(22 32 51 / 0.78);
+    --k-text-muted: rgb(22 32 51 / 0.56);
+    --k-text-disabled: rgb(22 32 51 / 0.34);
+    --k-border: rgb(22 32 51 / 0.14);
+    --k-nav-edge: rgb(22 32 51 / 0.12);
+    --k-input-bg: #f3f7fd;
+    --k-input-border: rgb(22 32 51 / 0.16);
+    --k-input-text: rgb(22 32 51 / 0.9);
+    --k-input-placeholder: rgb(22 32 51 / 0.5);
+  }
+}
+
+/* Light-theme compatibility layer for hardcoded dark utilities.
+   Applies to both explicit light AND system-when-OS-prefers-light. */
+
+html[data-theme="light"] .bg-\[\#080D1B\],
+html[data-theme="light"] .bg-\[\#0A0F1E\],
+html[data-theme="light"] .bg-\[\#0D1426\] {
+  background-color: var(--k-surface) !important;
+}
+
+html[data-theme="light"] .text-white\/90,
+html[data-theme="light"] .text-white\/85,
+html[data-theme="light"] .text-white\/80,
+html[data-theme="light"] .text-white\/75,
+html[data-theme="light"] .text-white\/70,
+html[data-theme="light"] .text-white\/65,
+html[data-theme="light"] .text-white\/60,
+html[data-theme="light"] .text-white\/55 {
+  color: var(--k-text-secondary) !important;
+}
+
+html[data-theme="light"] .text-white\/50,
+html[data-theme="light"] .text-white\/45,
+html[data-theme="light"] .text-white\/40 {
+  color: var(--k-text-muted) !important;
+}
+
+html[data-theme="light"] .text-white\/35,
+html[data-theme="light"] .text-white\/30,
+html[data-theme="light"] .text-white\/25,
+html[data-theme="light"] .text-white\/20 {
+  color: var(--k-text-disabled) !important;
+}
+
+html[data-theme="light"] .border-white\/15,
+html[data-theme="light"] .border-white\/10,
+html[data-theme="light"] .border-white\/8,
+html[data-theme="light"] .border-white\/6 {
+  border-color: var(--k-border) !important;
+}
+
+html[data-theme="light"] .bg-white\/2,
+html[data-theme="light"] .bg-white\/3,
+html[data-theme="light"] .bg-white\/4,
+html[data-theme="light"] .bg-white\/5,
+html[data-theme="light"] .bg-white\/6,
+html[data-theme="light"] .bg-white\/10,
+html[data-theme="light"] .bg-white\/20 {
+  background-color: var(--k-surface-elevated) !important;
+}
+
+/* System theme + OS light preference — same overrides */
+@media (prefers-color-scheme: light) {
+  html[data-theme="system"] .bg-\[\#080D1B\],
+  html[data-theme="system"] .bg-\[\#0A0F1E\],
+  html[data-theme="system"] .bg-\[\#0D1426\] {
+    background-color: var(--k-surface) !important;
+  }
+
+  html[data-theme="system"] .text-white\/90,
+  html[data-theme="system"] .text-white\/85,
+  html[data-theme="system"] .text-white\/80,
+  html[data-theme="system"] .text-white\/75,
+  html[data-theme="system"] .text-white\/70,
+  html[data-theme="system"] .text-white\/65,
+  html[data-theme="system"] .text-white\/60,
+  html[data-theme="system"] .text-white\/55 {
+    color: var(--k-text-secondary) !important;
+  }
+
+  html[data-theme="system"] .text-white\/50,
+  html[data-theme="system"] .text-white\/45,
+  html[data-theme="system"] .text-white\/40 {
+    color: var(--k-text-muted) !important;
+  }
+
+  html[data-theme="system"] .text-white\/35,
+  html[data-theme="system"] .text-white\/30,
+  html[data-theme="system"] .text-white\/25,
+  html[data-theme="system"] .text-white\/20 {
+    color: var(--k-text-disabled) !important;
+  }
+
+  html[data-theme="system"] .border-white\/15,
+  html[data-theme="system"] .border-white\/10,
+  html[data-theme="system"] .border-white\/8,
+  html[data-theme="system"] .border-white\/6 {
+    border-color: var(--k-border) !important;
+  }
+
+  html[data-theme="system"] .bg-white\/2,
+  html[data-theme="system"] .bg-white\/3,
+  html[data-theme="system"] .bg-white\/4,
+  html[data-theme="system"] .bg-white\/5,
+  html[data-theme="system"] .bg-white\/6,
+  html[data-theme="system"] .bg-white\/10,
+  html[data-theme="system"] .bg-white\/20 {
+    background-color: var(--k-surface-elevated) !important;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--k-page);
+  color: var(--k-text-secondary);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.65;
+  animation: k-page-fade-in 200ms ease;
+}
+
+/* Typography scale */
+.k-h1 {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--k-text);
+}
+
+.k-h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--k-text);
+}
+
+.k-h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--k-text);
+}
+
+.k-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--k-text-muted);
+}
+
+.k-btn-text {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.k-gradient-primary {
+  background: var(--gradient-k-primary);
+}
+
+.k-gradient-text {
+  background: var(--gradient-k-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@keyframes k-page-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Global surface enforcement */
+.bg-k-page {
+  background-color: var(--k-page) !important;
+}
+
+.text-k-text {
+  color: var(--k-text) !important;
+}
+
+/* Input fields */
+input,
+textarea,
+select {
+  background-color: var(--k-input-bg);
+  border-color: var(--k-input-border);
+  color: var(--k-input-text);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--k-input-placeholder);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: rgb(75 158 255 / 0.5);
+}
+
+/* Core surfaces and interactions */
+.rounded-k-card,
+.k-surface-card {
+  border-radius: var(--radius-k-card);
+}
+
+.border-k-border {
+  border-color: var(--k-border) !important;
+}
+
+.hover\:border-k-border-hover:hover {
+  border-color: rgb(75 158 255 / 0.3) !important;
+}
+
+button:active,
+a:active {
+  transform: scale(0.97);
+  transition: transform 100ms ease;
+}
+
+/* RTL support (Arabic) */
+html[dir="rtl"] {
+  direction: rtl;
+}
+
+html[dir="rtl"] .flex-row {
+  flex-direction: row-reverse;
+}
+
+html[dir="rtl"] .text-left {
+  text-align: right;
+}
+
+html[dir="rtl"] .text-right {
+  text-align: left;
+}
+
+html[dir="rtl"] .ml-auto {
+  margin-left: unset;
+  margin-right: auto;
+}
+
+html[dir="rtl"] .mr-auto {
+  margin-right: unset;
+  margin-left: auto;
+}
+
+html[dir="rtl"] .border-l-2 {
+  border-left-width: 0;
+  border-right-width: 2px;
+}
+
+html[dir="rtl"] .border-r {
+  border-right-width: 0;
+  border-left-width: 1px;
+}
+
+html[dir="rtl"] .ps-0 {
+  padding-inline-start: 0;
+}
+
+html[dir="rtl"] .pe-0 {
+  padding-inline-end: 0;
+}
+
+/* Landing page motion — keyframes */
+@keyframes k-landing-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes k-landing-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes k-landing-pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes k-landing-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+@keyframes k-landing-glow-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(75, 158, 255, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(75, 158, 255, 0.35);
+  }
+}
+
+@keyframes k-landing-glow-pulse-red {
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(239, 68, 68, 0.38);
+  }
+}
+
+
+@keyframes k-landing-badge-dot-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(1.15);
+  }
+}
+
+.k-landing-nav-in {
+  animation: k-landing-fade-in 0.6s ease both;
+}
+
+.k-landing-slide-up {
+  animation: k-landing-slide-up 0.7s ease both;
+}
+
+.k-landing-fade-in-slow {
+  animation: k-landing-fade-in 1s ease both;
+}
+
+.k-landing-fade-cards {
+  animation: k-landing-fade-in 1s ease 1s both;
+}
+
+.k-landing-float {
+  animation: k-landing-float 4s ease infinite both;
+}
+
+.k-landing-glow-pulse {
+  animation: k-landing-glow-pulse 3s ease-in-out infinite both;
+}
+
+.k-landing-glow-pulse-red {
+  animation: k-landing-glow-pulse-red 3s ease-in-out infinite both;
+}
+
+/* Hero floating preview cards — glass + cosmic wash + specular edge */
+.k-hero-float-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: var(--radius-k-card);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(
+    155deg,
+    rgba(22, 32, 58, 0.94) 0%,
+    rgba(13, 20, 38, 0.97) 45%,
+    rgba(10, 15, 30, 0.99) 100%
+  );
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 0 36px rgba(75, 158, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+.k-hero-float-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 14% 18%, rgba(255, 255, 255, 0.14) 0.6px, transparent 0.9px),
+    radial-gradient(circle at 72% 24%, rgba(255, 255, 255, 0.08) 0.45px, transparent 0.7px),
+    radial-gradient(circle at 88% 88%, rgba(255, 255, 255, 0.1) 0.5px, transparent 0.75px),
+    radial-gradient(ellipse 90% 70% at 15% -5%, rgba(75, 158, 255, 0.22) 0%, transparent 58%),
+    radial-gradient(ellipse 80% 60% at 105% 105%, rgba(167, 139, 250, 0.14) 0%, transparent 52%),
+    radial-gradient(ellipse 70% 55% at 50% 120%, rgba(15, 23, 42, 0.5) 0%, transparent 55%);
+  opacity: 1;
+}
+
+.k-hero-float-card--team {
+  border-color: rgba(75, 158, 255, 0.28);
+  background: linear-gradient(
+    155deg,
+    rgba(20, 35, 62, 0.95) 0%,
+    rgba(13, 24, 48, 0.97) 50%,
+    rgba(10, 18, 40, 0.99) 100%
+  );
+  box-shadow:
+    0 10px 36px rgba(0, 0, 0, 0.45),
+    0 0 44px rgba(75, 158, 255, 0.16),
+    0 0 60px rgba(167, 139, 250, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.k-hero-float-card--team::before {
+  background:
+    radial-gradient(circle at 18% 20%, rgba(255, 255, 255, 0.16) 0.6px, transparent 0.9px),
+    radial-gradient(circle at 78% 12%, rgba(255, 255, 255, 0.1) 0.45px, transparent 0.7px),
+    radial-gradient(ellipse 95% 75% at 10% -8%, rgba(75, 158, 255, 0.32) 0%, transparent 55%),
+    radial-gradient(ellipse 85% 65% at 100% 100%, rgba(167, 139, 250, 0.2) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 50% at 50% 130%, rgba(30, 27, 75, 0.45) 0%, transparent 55%);
+}
+
+.k-hero-float-card__inner {
+  position: relative;
+  z-index: 1;
+}
+
+.k-landing-glow-bg {
+  animation: k-landing-pulse 4s ease-in-out infinite both;
+}
+
+.k-landing-glow-bg-delay-1 {
+  animation: k-landing-pulse 5s ease-in-out infinite both;
+  animation-delay: 1s;
+}
+
+.k-landing-glow-bg-delay-2 {
+  animation: k-landing-pulse 6s ease-in-out infinite both;
+  animation-delay: 2s;
+}
+
+/* Section ambience: scale-only breathe (opacity pulse made hero-style gradients nearly invisible). */
+@keyframes k-landing-ambient-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.k-landing-ambient-glow {
+  opacity: 1;
+  animation: k-landing-ambient-breathe 5s ease-in-out infinite both;
+  transform-origin: center center;
+}
+
+.k-landing-ambient-glow-delay-1 {
+  animation: k-landing-ambient-breathe 6s ease-in-out infinite both;
+  animation-delay: 1s;
+  transform-origin: center center;
+}
+
+.k-landing-ambient-glow-delay-2 {
+  animation: k-landing-ambient-breathe 7s ease-in-out infinite both;
+  animation-delay: 2s;
+  transform-origin: center center;
+}
+
+/* Hero: slightly bolder breathe (leads the page; matches section language without being outshone). */
+@keyframes k-landing-hero-ambient-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.14);
+  }
+}
+
+.k-landing-hero-ambient-glow {
+  opacity: 1;
+  animation: k-landing-hero-ambient-breathe 4.8s ease-in-out infinite both;
+  transform-origin: center center;
+}
+
+.k-landing-hero-ambient-glow-delay-1 {
+  animation: k-landing-hero-ambient-breathe 5.8s ease-in-out infinite both;
+  animation-delay: 1s;
+  transform-origin: center center;
+}
+
+.k-landing-hero-ambient-glow-delay-2 {
+  animation: k-landing-hero-ambient-breathe 6.8s ease-in-out infinite both;
+  animation-delay: 2s;
+  transform-origin: center center;
+}
+
+.k-landing-hero-ambient-glow-delay-3 {
+  animation: k-landing-hero-ambient-breathe 5.2s ease-in-out infinite both;
+  animation-delay: 0.6s;
+  transform-origin: center center;
+}
+
+/* Kill looping/decorative animations; keep scroll reveals slightly visible (not 0.01ms). */
+@media (prefers-reduced-motion: reduce) {
+  .landing-page * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+
+  .landing-page *:not(.k-landing-reveal-allow) {
+    transition-duration: 0.01ms !important;
+  }
+
+  .landing-page .k-landing-reveal-allow {
+    transition-duration: 220ms !important;
+  }
+}

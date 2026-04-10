@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: kadrlar
+      POSTGRES_PASSWORD: kadrlar
+      POSTGRES_DB: kadrlar
+    ports:
+      - "5432:5432"
+    volumes:
+      - kadrlar_pg:/var/lib/postgresql/data
+
+volumes:
+  kadrlar_pg:
