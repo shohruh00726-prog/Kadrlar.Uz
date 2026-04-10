@@ -9,14 +9,14 @@ import { Client } from "pg";
  * Supavisor transaction pooler `db.*:6543` with user `postgres` works over IPv4.
  * @see https://supabase.com/docs/guides/database/connecting-to-postgres
  */
-const rawUrl = process.env.DATABASE_URL?.replace(/^["']|["']$/g, "").trim();
+const rawUrl = (process.env.DATABASE_URL ?? "").replace(/^["']|["']$/g, "").trim();
 if (!rawUrl) {
   console.error(`
-Missing DATABASE_URL in web/.env
+Missing DATABASE_URL in .env
 
 1. Supabase Dashboard → Project Settings → Database
 2. Under "Connection string", choose URI, copy it (includes the postgres password)
-3. Add one line to web/.env:
+3. Add one line to .env:
    DATABASE_URL=postgresql://postgres.xxxx:....@....supabase.co:5432/postgres
 
 Then run: npm run db:apply-schema
