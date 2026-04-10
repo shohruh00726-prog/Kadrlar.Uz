@@ -22,7 +22,10 @@ export type AdminSessionPayload = {
 function adminSecret() {
   const s = process.env.ADMIN_SESSION_SECRET;
   if (!s || s.length < 16) {
-    throw new Error("ADMIN_SESSION_SECRET must be set (min 16 chars).");
+    throw new Error(
+      "ADMIN_SESSION_SECRET must be set (min 16 characters) for /admin auth. " +
+        "Add it in Vercel: Project → Settings → Environment Variables.",
+    );
   }
   return new TextEncoder().encode(s);
 }

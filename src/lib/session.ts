@@ -24,7 +24,11 @@ export type SessionPayload = {
 function secret() {
   const s = process.env.SESSION_SECRET;
   if (!s || s.length < 16) {
-    throw new Error("SESSION_SECRET must be set (min 16 chars) for auth.");
+    throw new Error(
+      "SESSION_SECRET must be set (min 16 characters) for auth. " +
+        "In Vercel: Project → Settings → Environment Variables → add SESSION_SECRET for Production (and Preview if needed). " +
+        "Generate locally: node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\"",
+    );
   }
   return new TextEncoder().encode(s);
 }

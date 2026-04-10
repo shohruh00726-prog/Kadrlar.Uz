@@ -31,6 +31,20 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The easiest way to deploy this app is the [Vercel Platform](https://vercel.com/new).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Required environment variables
+
+Add these under **Project → Settings → Environment Variables** (at least for **Production**; add **Preview** if you use preview deployments):
+
+| Variable | Notes |
+| --- | --- |
+| `SESSION_SECRET` | **Required.** At least 16 characters. Signs user session cookies. Generate: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` |
+| `NEXT_PUBLIC_SUPABASE_URL` | From Supabase → Settings → API |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | From Supabase → Settings → API (anon, public) |
+| `SUPABASE_SERVICE_ROLE_KEY` | From Supabase → Settings → API (**service_role**, server-only) |
+| `ADMIN_SESSION_SECRET` | **Required for `/admin`.** At least 16 characters; can be a second random string |
+
+Copy from [`.env.example`](./.env.example) locally, then paste values into Vercel. Redeploy after saving.
+
+Check out [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
