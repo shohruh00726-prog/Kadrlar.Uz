@@ -31,8 +31,9 @@ export function assertProductionServerEnv(): void {
     admin.length >= 16 || hasServiceRole,
   );
 
-  const verif = process.env.VERIFICATION_DOC_SECRET ?? "";
-  add("VERIFICATION_DOC_SECRET (min 16 characters)", verif.length >= 16);
+  // VERIFICATION_DOC_SECRET is checked in @/lib/verification-crypto when verification
+  // uploads run; omitting it here avoids crashing the whole Node process on Vercel when
+  // that feature is not configured yet.
 
   if (problems.length === 0) return;
 
