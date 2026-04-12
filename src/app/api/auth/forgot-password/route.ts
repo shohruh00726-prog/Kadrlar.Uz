@@ -5,7 +5,12 @@ import { missingEnvMessage } from "@/lib/env-messages";
 import { getSiteOriginFromRequest } from "@/lib/site-origin";
 
 const bodySchema = z.object({
-  email: z.string().email(),
+  email: z
+    .string()
+    .trim()
+    .min(1)
+    .email()
+    .transform((s) => s.toLowerCase()),
 });
 
 function requirePublicEnv(name: "NEXT_PUBLIC_SUPABASE_URL" | "NEXT_PUBLIC_SUPABASE_ANON_KEY"): string {
@@ -22,7 +27,7 @@ export async function POST(req: Request) {
     if (!parsed.success) {
       return NextResponse.json({ error: "Invalid input" }, { status: 400 });
     }
-    const email = parsed.data.email.toLowerCase();
+    const email = parsed.data.email;
     const origin = getSiteOriginFromRequest(req);
     const nextPath = "/auth/update-password";
     const callbackUrl = `${origin}/auth/callback?next=${encodeURIComponent(nextPath)}`;

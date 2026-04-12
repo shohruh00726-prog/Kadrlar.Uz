@@ -6,7 +6,12 @@ import { attachSessionToResponse, type UserRole } from "@/lib/session";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 
 const bodySchema = z.object({
-  email: z.string().email(),
+  email: z
+    .string()
+    .trim()
+    .min(1, "Email is required")
+    .email()
+    .transform((s) => s.toLowerCase()),
   password: z.string().min(1),
 });
 
@@ -17,8 +22,7 @@ export async function POST(req: Request) {
     if (!parsed.success) {
       return NextResponse.json({ error: "Invalid input" }, { status: 400 });
     }
-    const { email, password } = parsed.data;
-    const normalizedEmail = email.toLowerCase();
+    const { email: normalizedEmail, password } = parsed.data;
     const supabase = await getSupabaseServerClient();
 
     const { error: signInError } = await supabase.auth.signInWithPassword({
@@ -34,7 +38,14 @@ export async function POST(req: Request) {
     const sb = getSupabaseAdmin();
     const { data: user, error } = await sb.from("users").select("*").eq("email", normalizedEmail).maybeSingle();
     if (error || !user) {
-      return NextResponse.json({ error: "User profile not found. Please register first." }, { status: 404 });
+      await supabase.auth.signOut();
+      return NextResponse.json(
+        {
+          error:
+            "No profile is linked to this account. Try signing up again with the same email, or use Forgot password if you already registered.",
+        },
+        { status: 404 },
+      );
     }
     const row = user as Record<string, unknown>;
     if (row.is_suspended) {

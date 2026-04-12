@@ -2,15 +2,21 @@ import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
+import { isSignUpDuplicateError, tryClearOrphanAuthUser } from "@/lib/auth-orphan";
 import { getSupabaseAdmin, isPostgresUniqueViolation } from "@/lib/supabase/admin";
-import { attachSessionToResponse, type UserRole } from "@/lib/session";
+import { attachSessionToResponse } from "@/lib/session";
 import { INDUSTRIES } from "@/lib/constants";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 
 const bodySchema = z.object({
   userType: z.enum(["employee", "employer"]),
   fullName: z.string().min(2),
-  email: z.string().email(),
+  email: z
+    .string()
+    .trim()
+    .min(1, "Email is required")
+    .email()
+    .transform((s) => s.toLowerCase()),
   password: z.string().min(8),
   phone: z.string().optional(),
   city: z.string().min(1),
@@ -27,7 +33,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid input", details: parsed.error.flatten() }, { status: 400 });
     }
     const b = parsed.data;
-    const email = b.email.toLowerCase();
+    const email = b.email;
 
     if (b.userType === "employer" && (!b.companyName || b.companyName.length < 2)) {
       return NextResponse.json({ error: "Company name required" }, { status: 400 });
@@ -40,16 +46,41 @@ export async function POST(req: Request) {
     }
 
     const supabase = await getSupabaseServerClient();
-    const { error: signUpError, data: signUpData } = await supabase.auth.signUp({
-      email,
-      password: b.password,
-    });
+
+    let signUpData: Awaited<ReturnType<typeof supabase.auth.signUp>>["data"] | null = null;
+    let signUpError: Awaited<ReturnType<typeof supabase.auth.signUp>>["error"] = null;
+
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const res = await supabase.auth.signUp({
+        email,
+        password: b.password,
+      });
+      signUpData = res.data;
+      signUpError = res.error;
+      if (!signUpError) break;
+
+      const dupCode = String((signUpError as { code?: string }).code ?? "");
+      if (
+        attempt === 0 &&
+        isSignUpDuplicateError(signUpError.message, signUpError.status, dupCode) &&
+        (await tryClearOrphanAuthUser(sb, email))
+      ) {
+        console.warn("[auth/register] cleared orphan auth user; retrying signUp", { email });
+        continue;
+      }
+      break;
+    }
+
     if (signUpError) {
-      const msg = signUpError.message.toLowerCase();
-      if (msg.includes("already") || msg.includes("registered")) {
+      const dupCode = String((signUpError as { code?: string }).code ?? "");
+      if (isSignUpDuplicateError(signUpError.message, signUpError.status, dupCode)) {
         return NextResponse.json({ error: "Email already in use" }, { status: 409 });
       }
       return NextResponse.json({ error: signUpError.message || "Could not create account" }, { status: 400 });
+    }
+
+    if (!signUpData) {
+      return NextResponse.json({ error: "Could not create account" }, { status: 400 });
     }
 
     const authId = signUpData.user?.id;
