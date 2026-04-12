@@ -7,10 +7,30 @@ import { AppChrome } from "@/components/app/TopNav";
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
+  const [err, setErr] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  function onSubmit(e: React.FormEvent) {
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setSent(true);
+    setErr("");
+    setLoading(true);
+    try {
+      const r = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      if (!r.ok) {
+        const j = (await r.json().catch(() => ({}))) as { error?: string };
+        setErr(j.error || "Something went wrong");
+        return;
+      }
+      setSent(true);
+    } catch {
+      setErr("Network error");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -30,18 +50,28 @@ export default function ForgotPasswordPage() {
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
             />
-            <button type="submit" className="w-full rounded-k-btn bg-k-primary py-3 text-sm text-white">
-              Request password reset
+            {err ? <p className="text-xs text-red-700">{err}</p> : null}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full rounded-k-btn bg-k-primary py-3 text-sm text-white disabled:opacity-60"
+            >
+              {loading ? "…" : "Send reset link"}
             </button>
           </form>
         ) : (
           <div className="mt-6 space-y-2 text-sm text-k-text-secondary">
             <p>
-              Password reset by email is <strong>coming soon</strong>. In the meantime, please contact
-              support to reset your password for <strong>{email}</strong>.
+              If an account exists for <strong>{email}</strong>, we sent a message with a link to set a new password.
+              Check your spam folder if you do not see it.
             </p>
-            <p>You can also register a new account if you no longer have access.</p>
+            <p>
+              <Link href="/login" className="text-k-primary hover:underline">
+                Back to log in
+              </Link>
+            </p>
           </div>
         )}
       </div>

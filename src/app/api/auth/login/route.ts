@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { signInFailureResponse } from "@/lib/auth-supabase-errors";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { attachSessionToResponse, type UserRole } from "@/lib/session";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
@@ -25,7 +26,9 @@ export async function POST(req: Request) {
       password,
     });
     if (signInError) {
-      return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
+      const mapped = signInFailureResponse(signInError);
+      console.error("[auth/login]", mapped.logLine, { email: normalizedEmail });
+      return NextResponse.json({ error: mapped.publicMessage }, { status: mapped.httpStatus });
     }
 
     const sb = getSupabaseAdmin();

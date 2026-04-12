@@ -1,6 +1,7 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import type { NextResponse } from "next/server";
+import { getUserSessionSecretKey } from "@/lib/session-secrets";
 
 const COOKIE = "kadrlar_session";
 const SESSION_MAX_AGE = 60 * 60 * 24 * 7;
@@ -21,29 +22,17 @@ export type SessionPayload = {
   typ: UserRole;
 };
 
-function secret() {
-  const s = process.env.SESSION_SECRET;
-  if (!s || s.length < 16) {
-    throw new Error(
-      "SESSION_SECRET must be set (min 16 characters) for auth. " +
-        "In Vercel: Project → Settings → Environment Variables → add SESSION_SECRET for Production (and Preview if needed). " +
-        "Generate locally: node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\"",
-    );
-  }
-  return new TextEncoder().encode(s);
-}
-
 export async function signSessionToken(userId: string, userType: UserRole) {
   return new SignJWT({ typ: userType })
     .setProtectedHeader({ alg: "HS256" })
     .setSubject(userId)
     .setExpirationTime("7d")
-    .sign(secret());
+    .sign(await getUserSessionSecretKey());
 }
 
 export async function verifySessionToken(token: string): Promise<SessionPayload | null> {
   try {
-    const { payload } = await jwtVerify(token, secret());
+    const { payload } = await jwtVerify(token, await getUserSessionSecretKey());
     const sub = payload.sub;
     const typ = payload.typ;
     if (!sub || (typ !== "employee" && typ !== "employer")) return null;

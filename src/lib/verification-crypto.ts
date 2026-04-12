@@ -1,10 +1,11 @@
 import { createCipheriv, createHash, randomBytes } from "crypto";
+import { GENERATE_SECRET_CMD, VERCEL_ENV_VARS_HINT } from "@/lib/env-messages";
 
 function keyFromSecret() {
   const secret = process.env.VERIFICATION_DOC_SECRET;
-  if (!secret) {
+  if (!secret || secret.length < 16) {
     throw new Error(
-      "VERIFICATION_DOC_SECRET must be set. Add it to your .env file.",
+      `VERIFICATION_DOC_SECRET must be set (min 16 characters) for verification uploads. ${VERCEL_ENV_VARS_HINT} ${GENERATE_SECRET_CMD}`,
     );
   }
   return createHash("sha256").update(secret).digest();

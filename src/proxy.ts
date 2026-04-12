@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
+import {
+  getAdminSessionSecretKeyOrNull,
+  getUserSessionSecretKeyOrNull,
+} from "@/lib/session-secrets";
 
 const SESSION_COOKIE = "kadrlar_session";
 const ADMIN_COOKIE = "kadrlar_admin_session";
@@ -22,16 +26,12 @@ const PROTECTED_USER_PREFIXES = [
 
 const GUEST_ONLY_PREFIXES = ["/login", "/register", "/forgot-password"];
 
-function sessionSecret() {
-  const s = process.env.SESSION_SECRET;
-  if (!s || s.length < 16) return null;
-  return new TextEncoder().encode(s);
+async function sessionSecret() {
+  return getUserSessionSecretKeyOrNull();
 }
 
-function adminSecret() {
-  const s = process.env.ADMIN_SESSION_SECRET;
-  if (!s || s.length < 16) return null;
-  return new TextEncoder().encode(s);
+async function adminSecret() {
+  return getAdminSessionSecretKeyOrNull();
 }
 
 async function verifyToken(token: string, secret: Uint8Array): Promise<boolean> {
@@ -48,7 +48,7 @@ export async function proxy(req: NextRequest) {
 
   if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
     const token = req.cookies.get(ADMIN_COOKIE)?.value;
-    const secret = adminSecret();
+    const secret = await adminSecret();
     if (!token || !secret || !(await verifyToken(token, secret))) {
       return NextResponse.redirect(new URL("/admin/login", req.url));
     }
@@ -66,7 +66,7 @@ export async function proxy(req: NextRequest) {
   if (!isProtected && !isGuestOnly) return NextResponse.next();
 
   const token = req.cookies.get(SESSION_COOKIE)?.value;
-  const secret = sessionSecret();
+  const secret = await sessionSecret();
   const hasValidSession = token && secret ? await verifyToken(token, secret) : false;
 
   if (isProtected && !hasValidSession) {

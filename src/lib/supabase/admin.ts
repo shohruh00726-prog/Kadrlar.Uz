@@ -1,4 +1,5 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { missingEnvMessage } from "@/lib/env-messages";
 
 /** Typed DB schema can replace `any` after running `supabase gen types`. */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -9,7 +10,7 @@ const globalForSupabaseAdmin = globalThis as unknown as { supabaseAdmin?: AdminC
 function requireEnv(name: string): string {
   const value = process.env[name];
   if (!value) {
-    throw new Error(`Missing required environment variable: ${name}`);
+    throw new Error(missingEnvMessage(name));
   }
   return value;
 }

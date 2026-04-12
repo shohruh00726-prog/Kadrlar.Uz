@@ -1,6 +1,7 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import type { NextResponse } from "next/server";
+import { getAdminSessionSecretKey } from "@/lib/session-secrets";
 
 const ADMIN_COOKIE = "kadrlar_admin_session";
 const ADMIN_SESSION_MAX_AGE = 60 * 60 * 12;
@@ -19,28 +20,17 @@ export type AdminSessionPayload = {
   role: string;
 };
 
-function adminSecret() {
-  const s = process.env.ADMIN_SESSION_SECRET;
-  if (!s || s.length < 16) {
-    throw new Error(
-      "ADMIN_SESSION_SECRET must be set (min 16 characters) for /admin auth. " +
-        "Add it in Vercel: Project → Settings → Environment Variables.",
-    );
-  }
-  return new TextEncoder().encode(s);
-}
-
 export async function signAdminSessionToken(adminId: string, role: string) {
   return new SignJWT({ role })
     .setProtectedHeader({ alg: "HS256" })
     .setSubject(adminId)
     .setExpirationTime("12h")
-    .sign(adminSecret());
+    .sign(await getAdminSessionSecretKey());
 }
 
 export async function verifyAdminSessionToken(token: string): Promise<AdminSessionPayload | null> {
   try {
-    const { payload } = await jwtVerify(token, adminSecret());
+    const { payload } = await jwtVerify(token, await getAdminSessionSecretKey());
     const sub = payload.sub;
     const role = payload.role;
     if (!sub || typeof role !== "string") return null;
