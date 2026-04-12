@@ -8,7 +8,7 @@ function emailsMatch(a: string, b: string): boolean {
 }
 
 /**
- * Finds an Auth user by email (paginated). Only used when signUp reports duplicate.
+ * Finds an Auth user by email (paginated). Only used when registration reports duplicate email.
  */
 export async function findAuthUserByEmail(sb: AdminClient, normalizedEmail: string) {
   const want = normalizedEmail.trim().toLowerCase();
