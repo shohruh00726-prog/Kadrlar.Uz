@@ -6,7 +6,12 @@ import { isSignUpDuplicateError, tryClearOrphanAuthUser } from "@/lib/auth-orpha
 import { getSupabaseAdmin, isPostgresUniqueViolation } from "@/lib/supabase/admin";
 import { attachSessionToResponse } from "@/lib/session";
 import { INDUSTRIES } from "@/lib/constants";
-import { getSupabaseServerClient } from "@/lib/supabase/server";
+
+/** If "true"/"1", Auth users stay unconfirmed until they click the email link (stricter). Default: auto-confirm so login works like manually added users. */
+function registerRequiresEmailVerification(): boolean {
+  const v = (process.env.AUTH_REGISTER_REQUIRE_EMAIL_VERIFICATION ?? "").trim().toLowerCase();
+  return v === "true" || v === "1" || v === "yes";
+}
 
 const bodySchema = z.object({
   userType: z.enum(["employee", "employer"]),
@@ -45,46 +50,49 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Email already in use" }, { status: 409 });
     }
 
-    const supabase = await getSupabaseServerClient();
+    const mustVerifyEmail = registerRequiresEmailVerification();
 
-    let signUpData: Awaited<ReturnType<typeof supabase.auth.signUp>>["data"] | null = null;
-    let signUpError: Awaited<ReturnType<typeof supabase.auth.signUp>>["error"] = null;
+    let created: { user: { id: string } | null } | null = null;
+    let createError: { message: string; status?: number; code?: string } | null = null;
 
     for (let attempt = 0; attempt < 2; attempt++) {
-      const res = await supabase.auth.signUp({
+      const res = await sb.auth.admin.createUser({
         email,
         password: b.password,
+        email_confirm: !mustVerifyEmail,
+        user_metadata: {
+          full_name: b.fullName,
+          user_type: b.userType,
+        },
       });
-      signUpData = res.data;
-      signUpError = res.error;
-      if (!signUpError) break;
+      created = res.data;
+      createError = res.error;
+      if (!createError) break;
 
-      const dupCode = String((signUpError as { code?: string }).code ?? "");
+      const dupCode = String((createError as { code?: string }).code ?? "");
       if (
         attempt === 0 &&
-        isSignUpDuplicateError(signUpError.message, signUpError.status, dupCode) &&
+        isSignUpDuplicateError(createError.message, createError.status, dupCode) &&
         (await tryClearOrphanAuthUser(sb, email))
       ) {
-        console.warn("[auth/register] cleared orphan auth user; retrying signUp", { email });
+        console.warn("[auth/register] cleared orphan auth user; retrying createUser", { email });
         continue;
       }
       break;
     }
 
-    if (signUpError) {
-      const dupCode = String((signUpError as { code?: string }).code ?? "");
-      if (isSignUpDuplicateError(signUpError.message, signUpError.status, dupCode)) {
+    if (createError) {
+      const dupCode = String((createError as { code?: string }).code ?? "");
+      if (isSignUpDuplicateError(createError.message, createError.status, dupCode)) {
         return NextResponse.json({ error: "Email already in use" }, { status: 409 });
       }
-      return NextResponse.json({ error: signUpError.message || "Could not create account" }, { status: 400 });
+      console.error("[auth/register] createUser failed", createError.message, createError);
+      return NextResponse.json({ error: createError.message || "Could not create account" }, { status: 400 });
     }
 
-    if (!signUpData) {
-      return NextResponse.json({ error: "Could not create account" }, { status: 400 });
-    }
-
-    const authId = signUpData.user?.id;
+    const authId = created?.user?.id;
     if (!authId) {
+      console.error("[auth/register] createUser returned no user id", { email, created });
       return NextResponse.json({ error: "Could not create account" }, { status: 400 });
     }
 
@@ -116,7 +124,7 @@ export async function POST(req: Request) {
         if (isPostgresUniqueViolation(uErr)) {
           return NextResponse.json({ error: "Email already in use" }, { status: 409 });
         }
-        console.error(uErr);
+        console.error("[auth/register] users insert failed", uErr);
         return NextResponse.json({ error: "Server error" }, { status: 500 });
       }
       const { error: pErr } = await sb.from("employee_profiles").insert({
@@ -137,7 +145,7 @@ export async function POST(req: Request) {
         authId,
         "employee",
       );
-      if (!signUpData.session) {
+      if (mustVerifyEmail) {
         result.headers.set("x-email-confirmation-required", "true");
       }
       return result;
@@ -149,7 +157,7 @@ export async function POST(req: Request) {
       if (isPostgresUniqueViolation(uErr)) {
         return NextResponse.json({ error: "Email already in use" }, { status: 409 });
       }
-      console.error(uErr);
+      console.error("[auth/register] users insert failed (employer)", uErr);
       return NextResponse.json({ error: "Server error" }, { status: 500 });
     }
     const industry =
@@ -171,7 +179,7 @@ export async function POST(req: Request) {
       authId,
       "employer",
     );
-    if (!signUpData.session) {
+    if (mustVerifyEmail) {
       result.headers.set("x-email-confirmation-required", "true");
     }
     return result;
